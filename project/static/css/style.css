@@ -22,8 +22,6 @@
 
 .emotions:hover {
     opacity: 0.4;
-    transition-property: opacity;
-    transition-duration: 0.5s;
 }
 
 .home__left__container {

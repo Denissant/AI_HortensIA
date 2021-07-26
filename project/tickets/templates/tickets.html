@@ -1905,18 +1905,25 @@
             </li>
             <li>
               <h3 id="about-question">{{ _('What is this emotion telling you?') }}</h3>
-              <p id="about">{{ _('The definition of the chosen emotion') }} </p>
+              <p id="about"><i>{{ _('The definition of the chosen emotion') }}</i> </p>
             </li>
           </ul>
           <button id="next-submit-ticket" class="next__btn" disabled>
             {{ _('Next') }} <i class="fas fa-chevron-right"></i>
           </button>
             <p id="ticket-submit-success"> </p>
+            <div>
+                <canvas id="radarSuccessPrimary" height="100%" width="100%" style="display:none"></canvas>
+
+                <canvas id="radarSuccessSecondary" height="100%" width="100%" style="display:none"></canvas>
+            </div>
         </div>
       </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/new.js') }}"></script>
+
   </body>
 </html>
 

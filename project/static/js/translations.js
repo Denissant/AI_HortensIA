@@ -95,7 +95,8 @@ if (current_lang === 'en') {
         radar: {
             labels: {
                 my: 'My data',
-                all: "Everyone's data"
+                all: "Everyone's data",
+                single: "Other users' data"
             },
             primary: {
                 emotions: ["Rage", "Vigilance", "Ecstasy", "Admiration", "Terror", "Amazement", "Grief", "Loathing"]
@@ -220,7 +221,8 @@ else if (current_lang === 'ka') {
                 radar: {
                     labels: {
                         my: 'ჩემი მონაცემები',
-                        all: 'ყველა მონაცემი'
+                        all: 'ყველა მონაცემი',
+                        single: 'სხვა მომხმარებლების მონაცემები'
                     },
                     primary: {
                         emotions: ["რისხვა", "სიფხიზლე", "აღტყინება", "აღტაცება", "თავზარდამცემი შიში", "აღფრთოვანება", "მწუხარება", "სიძულვილი"]

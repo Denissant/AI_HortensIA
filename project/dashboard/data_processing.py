@@ -337,7 +337,7 @@ def data_leaderboard():
 # data_leaderboard()
 
 
-def data_radar():
+def data_radar(specific_text=None):
     import pandas as pd
     from project.database import db
     from project import create_app
@@ -354,9 +354,14 @@ def data_radar():
         # class current_user:
         #     id = 1
 
-        # Get all tickets
-        all_tickets = pd.read_sql(db.session.query(Ticket).options(load_only('user', 'emotion', 'date')).statement,
-                                  db.engine)
+        if specific_text:  # Get tickets of only one text
+            all_tickets = pd.read_sql(db.session.query(Ticket).filter(Ticket.text == specific_text).options(load_only('user', 'emotion', 'date')).statement,
+                                      db.engine)
+        else:
+            # Get all tickets
+            all_tickets = pd.read_sql(db.session.query(Ticket).options(load_only('user', 'emotion', 'date')).statement,
+                                      db.engine)
+
         # all_tickets = pd.read_sql(db.session.query(Ticket).filter(Ticket.emotion <= 45).options(load_only('user', 'emotion', 'date')).statement, db.engine)
 
         if len(all_tickets) == 0:  # abort to avoid an error if there are 0 tickets, return zeroes for everything
@@ -365,21 +370,25 @@ def data_radar():
         all_tickets['date'] = all_tickets['date'].dt.date
         # Change date format of all tickets
         # TODO: might remove current_user data (make radar charts be my data vs others' data instead of my data vs all data)
-        # Get all current_user tickets
-        user_tickets = all_tickets.loc[all_tickets['user'] == current_user.id]
 
-        # Make dataframes for different time periods (day/week/month) for all data and for current_user
-        all_month_tickets = all_tickets.loc[all_tickets['date'] >= (today - timedelta(days=30))]
-        all_week_tickets = all_tickets.loc[all_tickets['date'] >= (today - timedelta(days=7))]
-        all_day_tickets = all_tickets.loc[all_tickets['date'] >= (today - timedelta(days=1))]
+        if specific_text:  # don't calculate current_user data and don't group data by time if it's one text
+            all_dataframes = [all_tickets]
+        else:
+            # Get all current_user tickets
+            user_tickets = all_tickets.loc[all_tickets['user'] == current_user.id]
 
-        user_month_tickets = user_tickets.loc[user_tickets['date'] >= (today - timedelta(days=30))]
-        user_week_tickets = user_tickets.loc[user_tickets['date'] >= (today - timedelta(days=7))]
-        user_day_tickets = user_tickets.loc[user_tickets['date'] >= (today - timedelta(days=1))]
+            # Make dataframes for different time periods (day/week/month) for all data and for current_user
+            all_month_tickets = all_tickets.loc[all_tickets['date'] >= (today - timedelta(days=30))]
+            all_week_tickets = all_tickets.loc[all_tickets['date'] >= (today - timedelta(days=7))]
+            all_day_tickets = all_tickets.loc[all_tickets['date'] >= (today - timedelta(days=1))]
 
-        # Get dataframes ready to be iterated over
-        all_dataframes = [all_tickets, all_month_tickets, all_week_tickets, all_day_tickets,
-                          user_tickets, user_month_tickets, user_week_tickets, user_day_tickets]
+            user_month_tickets = user_tickets.loc[user_tickets['date'] >= (today - timedelta(days=30))]
+            user_week_tickets = user_tickets.loc[user_tickets['date'] >= (today - timedelta(days=7))]
+            user_day_tickets = user_tickets.loc[user_tickets['date'] >= (today - timedelta(days=1))]
+
+            # Get dataframes ready to be iterated over
+            all_dataframes = [all_tickets, all_month_tickets, all_week_tickets, all_day_tickets,
+                              user_tickets, user_month_tickets, user_week_tickets, user_day_tickets]
 
         # For each df: get percentages of each emotion, convert them to coefficients and emotion group coefficients
         final_primary = []  # data for 8 emotion groups out of the first 24 (primary) emotions
@@ -432,7 +441,8 @@ def data_radar():
         # any time/ last month/ week/ day. Last 4 elements have the same structure but only include current_user's data
         return final_primary, final_secondary
 
-# data_radar()
+
+# data_radar(specific_text=1)
 #
 # final_primary, final_secondary = data_radar()
 # print('___________FINAL__________________PRIMARY____________')

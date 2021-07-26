@@ -13,31 +13,38 @@ def dashboard():
 
 # TODO: use flask-limit on fetching routes
 @dashboard_blueprint.route('/getradarsdata')
-def get_radars_data():
-    primary, secondary = data_radar()
-    everyone_anytime_primary, everyone_month_primary, everyone_week_primary, everyone_day_primary = primary[0:4]
-    user_anytime_primary, user_month_primary, user_week_primary, user_day_primary = primary[4:9]
+def get_radars_data(text=None):
+    if text:  # requested radars data for only one text
+        primary, secondary = data_radar(text)
+        data = dict(primary=primary, secondary=secondary)
 
-    everyone_anytime_secondary, everyone_month_secondary, everyone_week_secondary, everyone_day_secondary = secondary[
-                                                                                                            0:4]
-    user_anytime_secondary, user_month_secondary, user_week_secondary, user_day_secondary = secondary[4:9]
+        return make_response(jsonify(data))
 
-    all_radar_chart_data = dict(everyone_anytime_primary=everyone_anytime_primary,
-                                everyone_month_primary=everyone_month_primary,
-                                everyone_week_primary=everyone_week_primary,
-                                everyone_day_primary=everyone_day_primary,
-                                user_anytime_primary=user_anytime_primary,
-                                user_month_primary=user_month_primary,
-                                user_week_primary=user_week_primary,
-                                user_day_primary=user_day_primary,
-                                everyone_anytime_secondary=everyone_anytime_secondary,
-                                everyone_month_secondary=everyone_month_secondary,
-                                everyone_week_secondary=everyone_week_secondary,
-                                everyone_day_secondary=everyone_day_secondary,
-                                user_anytime_secondary=user_anytime_secondary,
-                                user_month_secondary=user_month_secondary,
-                                user_week_secondary=user_week_secondary,
-                                user_day_secondary=user_day_secondary)
+    else:
+        primary, secondary = data_radar()
+        everyone_anytime_primary, everyone_month_primary, everyone_week_primary, everyone_day_primary = primary[0:4]
+        user_anytime_primary, user_month_primary, user_week_primary, user_day_primary = primary[4:9]
+
+        everyone_anytime_secondary, everyone_month_secondary, everyone_week_secondary, everyone_day_secondary = secondary[
+                                                                                                                0:4]
+        user_anytime_secondary, user_month_secondary, user_week_secondary, user_day_secondary = secondary[4:9]
+
+        all_radar_chart_data = dict(everyone_anytime_primary=everyone_anytime_primary,
+                                    everyone_month_primary=everyone_month_primary,
+                                    everyone_week_primary=everyone_week_primary,
+                                    everyone_day_primary=everyone_day_primary,
+                                    user_anytime_primary=user_anytime_primary,
+                                    user_month_primary=user_month_primary,
+                                    user_week_primary=user_week_primary,
+                                    user_day_primary=user_day_primary,
+                                    everyone_anytime_secondary=everyone_anytime_secondary,
+                                    everyone_month_secondary=everyone_month_secondary,
+                                    everyone_week_secondary=everyone_week_secondary,
+                                    everyone_day_secondary=everyone_day_secondary,
+                                    user_anytime_secondary=user_anytime_secondary,
+                                    user_month_secondary=user_month_secondary,
+                                    user_week_secondary=user_week_secondary,
+                                    user_day_secondary=user_day_secondary)
 
     return make_response(jsonify(all_radar_chart_data))
 

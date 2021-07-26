@@ -8,6 +8,7 @@ import pandas as pd
 from sqlalchemy.sql.expression import func
 from flask import jsonify, session
 from flask_bcrypt import generate_password_hash, check_password_hash
+from project.dashboard.data_processing import data_radar
 
 
 class GetTextPostTicket(Resource):
@@ -44,11 +45,16 @@ class GetTextPostTicket(Resource):
             random_text = unmarked_texts.order_by(func.random()).first()
 
             if random_text.text:
+                primary, secondary = data_radar(random_text.id)
+
                 secret = generate_password_hash(create_app().config['SECRET_KEY'])
 
                 response = dict(random_text.__dict__)
                 response.pop('_sa_instance_state')
-                response.update(user=current_user.id, secret=secret.decode('utf8').replace("'", '"'))
+                response.update(user=current_user.id,
+                                radar_primary=primary,
+                                radar_secondary=secondary,
+                                secret=secret.decode('utf8').replace("'", '"'))
                 print(response)
 
                 return jsonify(response)

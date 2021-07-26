@@ -110,7 +110,7 @@ for (let i = 0; i < emotionSelectors.length; i++) {
 
         title.innerHTML = emotionNamesData[correctIndex].emotion;
         synonym.innerHTML = emotionNamesData[correctIndex].similar;
-        about.innerHTML = emotionNamesData[correctIndex].definition;
+        about.innerHTML = '<i>' + emotionNamesData[correctIndex].definition  + '</i>';
         aboutQuestion.innerHTML = txt.ticket.about[0] + emotionNamesData[correctIndex].emotion + txt.ticket.about[1]
         nextButton.disabled = false
 
@@ -125,13 +125,15 @@ for (let i = 0; i < emotionSelectors.length; i++) {
 function resetSelectedEmotion() {
     title.innerHTML = txt.ticket.reset.title
     synonym.innerHTML = txt.ticket.reset.synonym
-    about.innerHTML = txt.ticket.reset.about
     aboutQuestion.innerHTML = txt.ticket.reset.about_question
+    about.innerHTML = txt.ticket.reset.about
     nextButton.disabled = true
 
     chosenEmotion = null
 }
 
+let latestRadarPrimary;
+let latestRadarSecondary;
 // Send a POST request by clicking on Next button, submit data, and move on to the next sentence
 
 successField = document.getElementById('ticket-submit-success')
@@ -142,6 +144,8 @@ nextButton.addEventListener('click', function() {
             let emotion = chosenEmotion
             let user = currentTextData.user
             let secret = currentTextData.secret
+            latestRadarPrimary = currentTextData.radar_primary
+            latestRadarSecondary = currentTextData.radar_secondary
 
             fetch('/api/ticketrequest', {
                 method: 'POST',
@@ -160,6 +164,15 @@ nextButton.addEventListener('click', function() {
                     successField.style.color = '#054718'
                     successField.innerHTML = txt.ticket.submit + emotionNamesData[chosenEmotion].emotion + ')'
                     successField.style.display = 'block'
+                    // radarSuccessPrimary.style.display = 'block'
+                    // radarSuccessSecondary.style.display = 'block'
+                    // radarSuccessPrimary.data.datasets[0].data = latestRadarData[0];
+                    // radarSuccessSecondary.data.datasets[0].data = latestRadarData[1];
+                    // radarSuccessPrimary.update()
+                    // radarSuccessSecondary.update()
+
+                    updateChart(radarSuccessPrimary, latestRadarPrimary[0])
+                    updateChart(radarSuccessSecondary, latestRadarSecondary[0])
 
                     targetCardText.style.position = 'absolute'
                     targetCardText.animate([
@@ -176,8 +189,112 @@ nextButton.addEventListener('click', function() {
                     console.log(error)
                     successField.style.color = '#47050b'
                     successField.innerHTML = txt.ticket.error
+                    radarSuccessPrimary.style.display = 'none'
+                    radarSuccessSecondary.style.display = 'none'
                     successField.style.display = 'block'
                 });
         }
     }
 )
+
+
+// Generate empty radars
+
+const radarPrimaryConfig = {
+    type: "radar",
+    data: {
+        labels: txt.dash.radar.primary.emotions,
+        datasets: [
+            {
+                label: txt.dash.radar.labels.single,
+                data: [1, 1, 1, 1, 1, 1, 1, 1],
+                fill: true,
+                backgroundColor: "#5200CE13",
+                borderColor: "#4E6FCC",
+                pointBackgroundColor: "#4E6FCC",
+                pointBorderColor: "#5200CE",
+                pointHoverBackgroundColor: "#4E6FCC",
+                pointHoverBorderColor: "#5200CE",
+                tension: 0.3
+            },
+        ]
+    },
+    options: {
+        responsive: true,
+        elements:
+            {
+                point:
+                    {
+                        radius: 0,
+                        hitRadius: 20
+                    }
+            },
+        scales: {
+            r: {
+                pointLabels: {
+                    font: {
+                        size: 12,
+                        family: 'sans-serif'
+                    }
+                },
+                beginAtZero: true,
+                grid: {
+                    display: false
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                labels: {
+                    font: {
+                        family: "'FiraGO', 'BPG Nino Mtavruli', sans-serif"
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+function clone(obj) {
+    var result = Array.isArray(obj) ? [] : {};
+    for (var key in obj) {
+        var value = obj[key];
+        var type = {}.toString.call(value).slice(8, -1);
+        if (type === 'Array' || type === 'Object') {
+            result[key] = clone(value);
+        } else if (type === 'Date') {
+            result[key] = new Date(value.getTime());
+        } else {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+
+const radarSecondaryConfig = clone(radarPrimaryConfig)
+radarSecondaryConfig.data.labels = txt.dash.radar.secondary.emotions
+
+ctx = document.getElementById("radarSuccessPrimary").getContext('2d');
+const radarSuccessPrimary = new Chart(ctx, radarPrimaryConfig)
+
+ctx = document.getElementById("radarSuccessSecondary").getContext('2d');
+const radarSuccessSecondary = new Chart(ctx, radarSecondaryConfig)
+
+
+// successField.style.display = 'block'
+// radarSuccessPrimary.style.display = 'block'
+// radarSuccessSecondary.style.display = 'block'
+// console.log(latestRadarData[0])
+// console.log(latestRadarData[1])
+// radarSuccessPrimary.data.datasets[0].data = latestRadarData[0];
+// radarSuccessSecondary.data.datasets[0].data = latestRadarData[1];
+// radarSuccessPrimary.update()
+// radarSuccessSecondary.update()
+
+function updateChart(chart, data) {
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data = data;
+    });
+    chart.update();
+}
